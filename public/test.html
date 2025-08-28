@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mental Health Quiz</title>
+  <link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="info.html">Info</a></li>
+      <li><a class="active" href="details.html">Take the Test</a></li>
+    </ul>
+  </nav>
+
+  <div class="quiz-card">
+    <h1>Modern Mental Health Test</h1>
+    <p class="intro">
+      This scientifically-informed questionnaire helps you gauge your mental well-being. All responses are confidential.
+    </p>
+
+    <div class="question-header">
+      <span id="question-number">Loading...</span>
+      <div class="progress"><div id="progress-bar"></div></div>
+    </div>
+
+    <h2 id="question-text">Please wait while questions load…</h2>
+    <div id="answers" class="answers-list"></div>
+    <div class="quiz-nav-buttons">
+      <button id="back-btn" class="btn" disabled>Back</button>
+      <button id="next-btn" class="btn" disabled>Next</button>
+    </div>
+  </div>
+
+  <script src="assets/questions.js"></script>
+  <script>
+  (function(){
+    const questions = window.QUESTIONS || [];
+    const qNumEl   = document.getElementById('question-number');
+    const progress = document.getElementById('progress-bar');
+    const qText    = document.getElementById('question-text');
+    const answers  = document.getElementById('answers');
+    const nextBtn  = document.getElementById('next-btn');
+    const backBtn  = document.getElementById('back-btn');
+
+    let current = 0;
+    const answersIdx = [];
+
+    if (!questions.length) {
+      qText.textContent = 'No questions available.';
+      return;
+    }
+
+    renderQuestion(0);
+
+    function renderQuestion(i) {
+      const total = questions.length;
+      const q = questions[i];
+      qNumEl.textContent = `Question ${i+1} of ${total}`;
+      progress.style.width = `${(i/total)*100}%`;
+      qText.textContent = q.question;
+      answers.innerHTML = '';
+      nextBtn.disabled = true;
+
+      q.answers.forEach((ans, ai) => {
+        const btn = document.createElement('button');
+        btn.textContent = ans;
+
+        // Відмічаємо вибрану відповідь
+        if (answersIdx[i] === ai) {
+          btn.classList.add('selected');
+          nextBtn.disabled = false;
+        }
+
+        btn.addEventListener('click', () => {
+          Array.from(answers.children).forEach(ch => ch.classList.remove('selected'));
+          btn.classList.add('selected');
+          answersIdx[i] = ai;
+          nextBtn.disabled = false;
+        });
+        answers.appendChild(btn);
+      });
+
+      backBtn.disabled = (i === 0);
+      nextBtn.textContent = (i === total-1) ? 'Finish' : 'Next';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (current < questions.length - 1) {
+        renderQuestion(++current);
+      } else {
+        localStorage.setItem('mh_answers', JSON.stringify(answersIdx));
+        window.location.href = 'result.html';
+      }
+    });
+
+    backBtn.addEventListener('click', () => {
+      if (current > 0) {
+        renderQuestion(--current);
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

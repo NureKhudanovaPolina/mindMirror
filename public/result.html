@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Your Results</title>
+  <link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOM12PX5IwlQf5MFVvmMK3JjJV3w5hdLk",
+      authDomain: "mental-health-test-618f9.firebaseapp.com",
+      projectId: "mental-health-test-618f9",
+      storageBucket: "mental-health-test-618f9.firebasestorage.app",
+      messagingSenderId: "1048688157283",
+      appId: "1:1048688157283:web:397d42ea4c838e8f654e56",
+      measurementId: "G-SRV3QP9P3J"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window._app = app;
+    window._db = db;
+    window._collection = collection;
+    window._addDoc = addDoc;
+  </script>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="info.html">Info</a></li>
+      <li><a href="test.html">Take the Test</a></li>
+      <li><a class="active" href="result.html">Results</a></li>
+    </ul>
+  </nav>
+
+  <div class="container results-card">
+    <h1>Your Results</h1>
+    <!-- Легенда -->
+    <div class="chart-legend">
+      <span><span class="legend-box user-box"></span>You</span>
+      <span><span class="legend-box avg-box"></span>Population Avg.</span>
+    </div>
+    <div class="chart-columns"></div>
+
+    <div id="conclusions">
+      <h2>Analysis & Recommendations</h2>
+    </div>
+    <div id="save-status"></div>
+  </div>
+
+  <script src="assets/questions.js"></script>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', async () => {
+
+      const db = window._db;
+      const collection = window._collection;
+      const addDoc = window._addDoc;
+
+  const cats = [
+    {key:'Burnout',   icon:'burnout.png',   label:'Burnout',   idx:[56,57,58,59]},
+    {key:'Bipolar',   icon:'bipolar.png',   label:'Bipolar',   idx:[50,51,52,53,54,55]},
+    {key:'Social',    icon:'social.png',    label:'Social',    idx:[42,43,44,45,46,47,48,49]},
+    {key:'Eating',    icon:'eating.png',    label:'Eating',    idx:[60,61,62,63]},
+    {key:'OCD',       icon:'ocd.png',       label:'OCD',       idx:[22,23,24,25,26,27,28,29,30,31]},
+    {key:'Panic',     icon:'panic.png',     label:'Panic',     idx:[32,33,34,35,36,37,38,39,40,41]},
+    {key:'Anxiety',   icon:'anxiety.png',   label:'Anxiety',   idx:[0,1,2,3,4,5,6]},
+    {key:'Depression',icon:'depression.png',label:'Depression',idx:[7,8,9,10,11,12,13,14,15,16,17,18,19,20,21]},
+    {key:'Substance', icon:'substance.png', label:'Substance', idx:[64,65]},
+    {key:'SelfHarm',  icon:'selfharm.png',  label:'SelfHarm',  idx:[66,67,68,69]},
+  ];
+  const avgs = {Burnout:40,Bipolar:15,Social:28,Eating:18,OCD:20,Panic:25,Anxiety:35,Depression:30,Substance:10,SelfHarm:12};
+
+ const answers = JSON.parse(localStorage.getItem('mh_answers')||'[]');
+      if (!answers.length) {
+        document.querySelector('.chart-columns').innerHTML = "<div style='color:#888; text-align:center; width:100%;'>No results found.<br>Take the test first!</div>";
+        return;
+      }
+
+      const results = cats.map(c=>{
+        let sum=0; c.idx.forEach(i=>{
+          const q = QUESTIONS[i];
+          const chosen = answers[i]!=null?answers[i]:q.answers.length-1;
+          sum += ((q.answers.length-1-chosen)/(q.answers.length-1))*100;
+        });
+        return {
+          key:c.key,
+          icon:c.icon,
+          label:c.label,
+          user: Math.round(sum/c.idx.length),
+          avg:  avgs[c.key]||0
+        };
+      }).sort((a,b)=>b.user-a.user);
+
+    const cols = document.querySelector('.chart-columns');
+    cols.innerHTML = '';
+    results.forEach(r=>{
+      const col = document.createElement('div');
+      col.className = 'chart-col';
+      col.innerHTML = `
+        <div class="bar avg-bar" style="height:${r.avg}%"></div>
+        <div class="bar user-bar" style="height:${r.user}%">
+          <span class="bar-label">${r.user}%</span>
+        </div>
+        <div class="col-label">${r.label}</div>
+      `;
+      cols.appendChild(col);
+    });
+ 
+
+
+  const recommendations = {
+    Depression: [
+ {max: 5, text: "You show no signs of depression. Your mood is within the normal range, your working capacity and vitality are preserved."},
+ {max: 10, text: "Low level of depressive manifestations. The emotional background is stable, no negative trends are observed."},
+ {max: 20, text: "Very mild symptoms of depression. Monitor your well-being and ensure a balance between work and rest."},
+ {max: 30, text: "Mild signs of depression. Pay attention to sleep, physical activity, and socialising."},
+ {max: 40, text: "Initial signs of depression. Possible influence of stress or fatigue. Maintain social contacts and relaxation."},
+ {max: 50, text: "Moderate symptoms of depression. Emotional state should be monitored. Consultation with a psychologist is recommended."},
+ {max: 60, text: "Depressive symptoms are above average. It may affect the quality of life. Do not delay seeking medical advice."},
+ {max: 70, text: "High level of depression! It is important to contact a psychotherapist or psychiatrist for help."},
+ {max: 80, text: "Serious manifestations of depression. Professional help is needed to prescribe treatment."},
+ {max: 90, text: "Extremely severe depression, possible health risks. See a doctor immediately."},
+ {max:100, text: "Critical level of depression! Contact a psychiatrist or crisis service immediately."}
+    ],
+ Anxiety: [
+ {max:5, text: "You do not show signs of anxiety disorder. Your anxiety is within the normal range."},
+ {max:10, text: "Low anxiety. You have good emotional control."},
+ {max:20, text: "Very mild manifestations of anxiety. Use relaxation and stress prevention techniques."},
+ {max:30, text: "Mildly elevated anxiety. It is worth paying attention to rest and sleep."},
+ {max:40, text: "Moderate level of anxiety. Possible reaction to life's difficulties."},
+ {max:50, text: "Anxiety can affect everyday life. It is recommended to consult a psychologist."},
+ {max:60, text: "High anxiety. It is worth contacting a specialist for support."},
+ {max:70, text: "Severe anxiety. Consultation with a psychotherapist is mandatory."},
+ {max:80, text: "Severe anxiety, possible panic attacks. Do not delay seeking medical attention."},
+ {max:90, text: "Critical anxiety level! See a specialist immediately."},
+ {max:100,text: "Extremely high anxiety! May be dangerous to health - consult a doctor immediately."}
+    ],
+ Burnout: [
+ {max:5,text: "You have no signs of emotional burnout. You retain resources and motivation."},
+ {max:10, text: "Very low risk of burnout. Maintain a healthy balance in your life."},
+ {max:20, text: "Low signs of burnout. It is important to take care of your rest."},
+ {max:30, text: "Mild fatigue or decreased energy. Prevention - alternating work and rest."},
+ {max:40, text: "There are signs of initial burnout. It is recommended to change the routine and find time for yourself."},
+ {max:50, text: "Moderate manifestations of burnout. Assess your workload. If symptoms persist, consult a psychologist."},
+ {max:60, text: "High risk of emotional burnout. It is worth consulting a specialist."},
+ {max:70, text: "Burnout has a significant impact on life. See a therapist."},
+ {max:80, text: "Serious emotional exhaustion. Professional help is needed."},
+ {max:90, text: "Critical level of burnout! Seek medical attention immediately."},
+ {max:100,text: "Extreme level of burnout! Contact a specialist immediately."}
+    ],
+ Bipolar: [
+ {max:5, text: "No signs of bipolar affective disorder."},
+ {max:10, text: "Your emotional sphere is within normal limits, mood cycling is not expressed."},
+ {max:20, text: "Very weak manifestations of mood swings. Control your mood."},
+ {max:30, text: "Mild mood swings are not a cause for concern."},
+ {max:40, text: "Individual episodes of mood swings are possible, but they do not disrupt your life."},
+ {max:50, text: "Mood swings can affect behaviour. Consultation will not hurt."},
+ {max:60, text: "The risk of bipolar disorder is increased. It is worth visiting a psychiatrist for diagnosis."},
+ {max:70, text: "Pronounced mood swings. Do not delay seeking medical attention."},
+ {max:80, text: "Serious changes in mood and energy. Professional diagnosis is mandatory."},
+ {max:90, text: "Critical level of bipolar disorder symptoms! See a psychiatrist immediately."},
+ {max:100,text: "Extremely high risk of bipolar disorder. Consult a specialist immediately!"}
+    ],
+      Social: [
+ {max:5, text: "Your social adaptation is very high."},
+ {max:10, text: "You easily establish contact with others, no social anxiety."},
+ {max:20, text: "Slight shyness in certain situations is normal."},
+ {max:30, text: "Moderate level of tension in communication. It is useful to train social skills."},
+ {max:40, text: "There are signs of social anxiety. Use confidence exercises."},
+ {max:50, text: "Difficulties in social interaction can affect life. Psychological support is recommended."},
+ {max:60, text: "Severe social anxiety. Seek professional help."},
+ {max:70, text: "Serious communication difficulties. Do not delay contacting a specialist."},
+ {max:80, text: "High level of social maladjustment. Professional help is required."},
+ {max:90, text: "Critical level of social anxiety! See a psychotherapist immediately."},
+ {max:100,text: "Extremely high risk of social isolation! See a doctor immediately."}
+    ],
+ Eating: [
+ {max:5,text: "You do not have any manifestations of eating disorders."},
+ {max:10,text: "Healthy attitude to eating. Continue to follow healthy habits."},
+ {max:20, text: "Very minor signs of dissatisfaction with food or body."},
+ {max:30, text: "Mild eating disorders. Watch your emotions and food intake."},
+ {max:40, text: "Possible manifestations of dietary restrictions or compulsive overeating."},
+ {max:50, text: "Moderate manifestations of PBD. Consultation with a nutritionist or psychologist is recommended."},
+ {max:60, text: "There is a risk of developing eating disorders. Seek professional help."},
+ {max:70, text: "Severe symptoms of an eating disorder. Do not delay seeking medical attention."},
+ {max:80, text: "Serious eating disorders! Professional help is mandatory."},
+ {max:90, text: "Critical level of PBD symptoms! Seek medical attention immediately."},
+ {max:100,text: "Extremely dangerous level of symptoms! Seek medical attention immediately."}
+    ],
+ Substance: [
+ {max:5,text: "There are no signs of substance abuse."},
+ {max:10,text: "Your habits do not pose a health risk."},
+ {max:20,text: "Your substance use is minimal."},
+ {max:30,text: "Mild manifestations of risky behaviour. Be attentive to your health."},
+ {max:40, text: "Increased risk is possible. Watch your consumption and motives for use."},
+ {max:50, text: "Signs of risky behaviour. Consultation with a specialist is recommended."},
+ {max:60, text: "Risk of addiction. Do not delay seeking medical attention."},
+ {max:70, text: "High level of use. Professional help is needed."},
+ {max:80, text: "Serious addiction! Seek medical attention immediately."},
+ {max:90, text: "Critical level of risk of addiction! Seek medical attention immediately."},
+ {max:100,text: "Extremely dangerous level of addiction! Contact a doctor or crisis centre immediately."}
+    ],
+ Panic: [
+ {max:5,text: "There are no signs of panic attacks or panic disorder."},
+ {max:10,text: "Minimal manifestations of panic anxiety. This is the borderline of normal."},
+ {max:20, text: "Mild signs of panic anxiety. Watch your reactions to stress."},
+ {max:30, text: "Sometimes you feel inner tension. Practice relaxation."},
+ {max:40, text: "There may be some manifestations of panic. Consultation is recommended if the symptoms become more frequent."},
+ {max:50, text: "Moderate tendency to panic reactions. Consider consulting a specialist."},
+ {max:60, text: "There is a risk of panic attacks. Do not delay contacting a psychologist or psychotherapist."},
+ {max:70, text: "Frequent or severe panic symptoms. Be sure to consult a doctor."},
+ {max:80, text: "Serious level of panic disorder. Specialist help is required."},
+ {max:90, text: "Critical level of panic attacks! See a therapist or psychiatrist immediately."},
+ {max:100,text: "Extremely high level of symptoms! Seek medical attention immediately."}
+    ],
+        OCD: [
+ {max:5, text: "There are no signs of obsessive-compulsive disorder."},
+ {max:10, text: "Minimal manifestations of obsessive thoughts. This is the limit of the norm."},
+ {max:20, text: "Mild manifestations of OCD. Control your anxiety level and work on self-regulation."},
+ {max:30, text: "Sometimes you experience obsessive thoughts or actions. Do not hesitate to consult a psychologist for advice."},
+ {max:40, text: "Moderate level of OCD. If the symptoms increase, a consultation is mandatory."},
+ {max:50, text: "Noticeable manifestations of OCD. It is recommended to consult a psychotherapist."},
+ {max:60, text: "High level of symptoms. Professional diagnosis is necessary."},
+ {max:70, text: "Strong obsessive thoughts or rituals. See a psychiatrist."},
+ {max:80, text: "Serious OCD. Treatment under the supervision of a doctor is mandatory."},
+ {max:90, text: "Critical level of OCD! See a doctor immediately."},
+ {max:100,text: "Extremely high level of OCD! Urgently consult a specialist."}
+    ],
+ SelfHarm: [
+ {max:5,text: "No signs of auto-aggressive or suicidal behaviour."},
+ {max:10,text: "Minimal thoughts of self-harm. Prevention is about taking care of yourself."},
+ {max:20, text: "Very minor manifestations of autoaggression. It is important to maintain contact with loved ones."},
+ {max:30, text: "Mild manifestations of destructive thoughts. Consult a psychologist if necessary."},
+ {max:40, text: "Moderate thoughts of self-harm. Discuss the condition with a specialist."},
+ {max:50, text: "There is a risk of self-harm. Consultation with a psychologist or psychotherapist is recommended."},
+ {max:60, text: "High level of autoaggression. Professional help is required."},
+ {max:70, text: "Serious risk of self-harm. See a psychotherapist or psychiatrist."},
+ {max:80, text: "High risk of auto-aggression and suicidal thoughts! Seek professional help immediately."},
+ {max:90, text: "Critical level of auto-aggression! Contact a crisis centre immediately."},
+ {max:100,text: "Extremely dangerous level of suicidal risk! Seek emergency help immediately."}
+    ]
+  };
+
+    const out = document.getElementById('conclusions');
+    out.innerHTML = '<h2>Analysis & Recommendations</h2>';
+    results.forEach(r=>{
+      const p = document.createElement('p');
+      p.className='conclusion';
+      let recArr = recommendations[r.label] || recommendations[r.key];
+      let rec = "";
+      if (recArr) {
+        rec = recArr.find(x=>r.user<=x.max)?.text || recArr[recArr.length-1].text;
+      } else {
+        rec = "Symptom level: ‘ + r.user + ’%. Please consult a specialist."
+      }
+      p.innerHTML=`<strong>${r.label} — ${r.user}%</strong>: ${rec}`;
+      out.appendChild(p);
+    });
+
+    
+
+  if (answers.length === 70 && answers.every(a => a !== undefined && a !== null)) {
+        const user = JSON.parse(localStorage.getItem('mh_user') || '{}');
+        const resultsObj = {
+          user,
+          answers,
+          date: new Date().toISOString(),
+          categories: results
+        };
+        try {
+          await addDoc(collection(db, "mh_results"), resultsObj);
+          document.getElementById('save-status').textContent = "Your result has been saved for statistical purposes!";
+        } catch (err) {
+          document.getElementById('save-status').textContent = "The result could not be saved. Please take the test again.";
+        }
+      }
+
+  })();
+  </script>
+
+<div style="margin-top: 32px; text-align:center;">
+  <a href="stats.html" id="toStats" class="button" style="font-size:1.15em;">View statistics</a>
+</div>
+
+
+</body>
+</html>

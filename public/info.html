@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mental Health Information</title>
+  <link rel="stylesheet" href="assets/style.css">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+
+</head>
+<body>
+
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="info.html">Mental Health Info</a></li>
+      <li><a href="details.html">Take the Test</a></li>
+    </ul>
+  </nav>
+
+  <!-- Страница інформації про хвороби -->
+  <div id="mental-health-info" class="container">
+  <h1>Mental Health Disorders</h1>
+
+    <!-- Depression -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('depression')">
+        <h2>Depression</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="depression" class="disorder-content">
+        <p><strong>Depression</strong> (Major Depressive Disorder) is characterized by persistent sadness, hopelessness, and loss of interest in daily activities. It is accompanied by symptoms like fatigue, appetite changes, sleep disturbance, and difficulty concentrating. Depression is the leading cause of disability worldwide (WHO).</p>
+        <p>The median age of onset is early adulthood. According to the WHO, more than 280 million people globally are affected by depression, with higher prevalence among young adults and students. Untreated depression can impair academic and social functioning and increase the risk of suicide.</p>
+      </div>
+    </div>
+
+    <!-- Burnout -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('burnout')">
+        <h2>Burnout</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="burnout" class="disorder-content">
+        <p><strong>Burnout</strong> is recognized by the WHO as a syndrome resulting from chronic workplace or academic stress. It is marked by emotional exhaustion, cynicism, and reduced performance. Symptoms include persistent fatigue, sleep problems, and decreased motivation. Burnout is especially common among students and professionals under sustained pressure—up to 30% of students may experience significant symptoms.</p>
+      </div>
+    </div>
+
+    <!-- Anxiety Disorders (General, Social, Panic) -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('anxiety')">
+        <h2>Anxiety Disorders (General, Social, Panic)</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="anxiety" class="disorder-content">
+        <p><strong>Anxiety Disorders</strong> include generalized anxiety, social anxiety, and panic disorder. They are characterized by excessive fear, worry, or nervousness that interferes with daily life. Symptoms may include restlessness, muscle tension, difficulty concentrating, or sudden panic attacks (racing heart, chest pain, dizziness).</p>
+        <p>Social anxiety specifically involves fear of social situations or public scrutiny; panic disorder is defined by unexpected panic attacks. According to the NIMH and WHO, anxiety disorders are the most common mental health issues, affecting over 260 million people worldwide.</p>
+      </div>
+    </div>
+
+    <!-- Bipolar Disorder -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('bipolar')">
+        <h2>Bipolar Disorder</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="bipolar" class="disorder-content">
+        <p><strong>Bipolar Disorder</strong> is a chronic mental health condition featuring alternating episodes of depression and mania or hypomania. Manic symptoms include elevated mood, increased energy, decreased need for sleep, and impulsive behavior; depressive episodes mirror major depression. Bipolar disorder typically begins in late adolescence or early adulthood and affects about 2.8% of adults annually (NIMH).</p>
+      </div>
+    </div>
+
+    <!-- OCD -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('ocd')">
+        <h2>Obsessive-Compulsive Disorder (OCD)</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="ocd" class="disorder-content">
+        <p><strong>OCD</strong> is defined by persistent, unwanted thoughts (obsessions) and repetitive behaviors (compulsions) performed to reduce anxiety. Common obsessions involve fears of contamination, while compulsions include excessive cleaning or checking. OCD often begins in adolescence and affects about 1-2% of people worldwide (NIMH).</p>
+      </div>
+    </div>
+
+    <!-- Eating Disorders -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('eating')">
+        <h2>Eating Disorders</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="eating" class="disorder-content">
+        <p><strong>Eating Disorders</strong>—including anorexia nervosa, bulimia nervosa, and binge-eating disorder—are marked by abnormal eating habits, extreme preoccupation with weight/shape, and physical health risks. They commonly develop in adolescence and young adulthood, and can co-occur with depression or anxiety. About 9% of people experience an eating disorder in their lifetime (NIMH).</p>
+      </div>
+    </div>
+
+    <!-- Substance Use Disorders -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('substance')">
+        <h2>Substance Use Disorder</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="substance" class="disorder-content">
+        <p><strong>Substance Use Disorder (SUD)</strong> refers to the harmful or hazardous use of alcohol or drugs, leading to dependence and difficulty controlling use. SUD is common among young adults and can be associated with mental health problems such as depression and anxiety. About 10% of adults in the U.S. have experienced SUD at some point (NIDA).</p>
+      </div>
+    </div>
+
+    <!-- Self-Harm -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('selfharm')">
+        <h2>Self-Harm</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="selfharm" class="disorder-content">
+        <p><strong>Self-harm</strong> means intentionally injuring oneself (e.g., cutting, burning) without suicidal intent. It is often a response to overwhelming emotional distress and can be a sign of underlying depression, anxiety, or trauma. The highest rates are among teenagers and young adults; up to 17% of adolescents report some self-harm experience. Self-harm is a strong risk factor for suicide, so early support is crucial (NIMH).</p>
+      </div>
+    </div>
+
+    <!-- Comorbidity & Early Onset -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('comorbidity')">
+        <h2>Comorbidity and Early Onset</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="comorbidity" class="disorder-content">
+        <p>Many mental disorders begin before age 24. Over 50% of lifetime mental illnesses start by adolescence (Kessler et al., 2005). It is common to experience more than one disorder at the same time (comorbidity), which can complicate diagnosis and treatment. Early intervention is essential for better outcomes.</p>
+      </div>
+    </div>
+
+
+    <!-- Comorbidity Section -->
+    <div class="disorder-box">
+      <div class="disorder-header" onclick="toggleContent('comorbidity')">
+        <h2>8. Comorbidity and Early Onset</h2>
+        <span class="arrow">▼</span>
+      </div>
+      <div id="comorbidity" class="disorder-content">
+        <p>Many mental disorders begin before the age of 24. Kessler et al. (2005) show that over 50% of lifetime mental illnesses begin by mid-adolescence. Comorbidity—the presence of multiple disorders in one individual—complicates diagnosis and treatment.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="assets/main.js"></script>
+</body>
+</html>
